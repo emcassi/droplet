@@ -1,14 +1,23 @@
 from Xlib import display, X
-import time
-import sys
+import signal, time, sys
 
 interval = float(sys.argv[1]) if len(sys.argv) > 1 else 0.3
 
 d = display.Display()
 root = d.screen().root
+running = True
 
 GET_IMAGE_FORMAT = X.ZPixmap  # 2 → ZPixmap format (raw pixel data)
 PLANE_MASK_ALL = 0xFFFFFFFF  # Read all color planes (RGB, alpha if present)
+
+
+def stop_gracefully(*_):
+    global running
+    running = False
+
+
+signal.signal(signal.SIGINT, stop_gracefully)
+signal.signal(signal.SIGTERM, stop_gracefully)
 
 
 def get_pixel_color():
@@ -19,6 +28,6 @@ def get_pixel_color():
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
-while True:
+while running:
     print(get_pixel_color(), flush=True)
     time.sleep(interval)
