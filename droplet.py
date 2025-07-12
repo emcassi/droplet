@@ -9,8 +9,6 @@ class RGB(NamedTuple):
     b: int
 
 
-interval = float(sys.argv[1]) if len(sys.argv) > 1 else 0.3
-
 d = display.Display()
 root = d.screen().root
 running = True
@@ -33,7 +31,7 @@ def get_pixel_color() -> RGB:
     x, y = data["root_x"], data["root_y"]
     try:
         pixel = root.get_image(x, y, 1, 1, GET_IMAGE_FORMAT, PLANE_MASK_ALL).data
-    except:
+    except Exception:
         return RGB(0, 0, 0)
     r, g, b = pixel[2], pixel[1], pixel[0]
     return RGB(r, g, b)
@@ -56,19 +54,46 @@ def get_contrast_color(rgb: RGB) -> RGB:
 
 
 def get_hex_code(rgb: RGB) -> str:
-    return f"#{rgb.r:02x}{rgb.g:02x}{rgb.b:02x}"
+    return f"#{rgb.r:02X}{rgb.g:02X}{rgb.b:02X}"
+
+
+def parse_interval() -> int:
+    try:
+        return int(sys.argv[1]) if len(sys.argv) > 1 else 300
+    except ValueError:
+        print("Interval must be an integer (milliseconds).", file=sys.stderr)
+        sys.exit(1)
 
 
 def main():
+    if "--help" in sys.argv:
+        print("Usage: droplet.py [interval_ms] [--once]")
+        sys.exit(0)
+
+    if "--once" in sys.argv:
+        color = get_pixel_color()
+        print(
+            f"{get_hex_code(color)} {get_hex_code(get_contrast_color(color))}",
+            flush=True,
+        )
+        sys.exit(0)
+
+    interval = parse_interval()
+
+    last_color = None
     while running:
         active_color = get_pixel_color()
+        if active_color == last_color:
+            time.sleep(interval / 1000.0)
+            continue
+        last_color = active_color
         contrast_color = get_contrast_color(active_color)
 
         active_hex = get_hex_code(active_color)
         contrast_hex = get_hex_code(contrast_color)
 
-        print(f"{active_hex} {contrast_hex}")
-        time.sleep(interval)
+        print(f"{active_hex} {contrast_hex}", flush=True)
+        time.sleep(interval / 1000.0)
 
 
 if __name__ == "__main__":
