@@ -91,6 +91,13 @@ function M:get_entry_by_index(index)
 	return history[index]
 end
 
+function M:copy_index_to_clipboard(index)
+	local entry = M:get_entry_by_index(index)
+	if entry then
+		awful.spawn.with_shell('echo "' .. entry.hex .. '" | xclip -selection clipboard')
+	end
+end
+
 local function should_delete(entry)
 	return entry.deletedAt and entry.deletedAt < os.date("%Y-%m-%d %H:%M:%S", os.time() - 60 * 60 * 24 * 7)
 end

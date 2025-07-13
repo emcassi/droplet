@@ -1,6 +1,7 @@
 local widget = require(... .. ".widget")
 local core = require(... .. ".core")
 local history = require(... .. ".history")
+local helpers = require(... .. ".helpers")
 
 return {
 	widget = widget.widget,
@@ -20,6 +21,15 @@ return {
 	end,
 	get_history = function()
 		return history:load_history()
+	end,
+	describe_history = function()
+		return helpers.inspect(history:load_history())
+	end,
+	copy_active_color_to_clipboard = function()
+		core.copy_active_color_to_clipboard()
+	end,
+	copy_index_to_clipboard = function(index)
+		history:copy_index_to_clipboard(index)
 	end,
 	clear_history = function()
 		history:clear_history()

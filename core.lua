@@ -65,4 +65,8 @@ function M:save_active_color()
 	end
 end
 
+function M:copy_active_color_to_clipboard()
+	awful.spawn.with_shell('echo "' .. state.active_color .. '" | xclip -selection clipboard')
+end
+
 return M
