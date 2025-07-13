@@ -9,13 +9,11 @@ local history = require("droplet.history")
 function M:start(interval_ms)
 	state.running = true
 	if state.process then
-		if state.process then
-			local pid = tonumber(state.process)
-			if pid then
-				awful.spawn.easy_async_with_shell("kill " .. pid, function()
-					state.process = nil
-				end)
-			end
+		local pid = tonumber(state.process)
+		if pid then
+			awful.spawn.easy_async_with_shell("kill " .. pid, function()
+				state.process = nil
+			end)
 		end
 	end
 
@@ -55,7 +53,10 @@ function M:stop()
 end
 
 function M:save_active_color()
-	if not history:add_to_history(state.active_color) then
+	local saved, entry = history:add_to_history(state.active_color)
+	if saved then
+		history:add_action("add", entry.id)
+	else
 		naughty.notify({
 			text = "Could not save color",
 			timeout = 5,
