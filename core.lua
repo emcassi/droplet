@@ -4,6 +4,7 @@ local naughty = require("naughty")
 local awful = require("awful")
 local state = require("droplet.state")
 local widget = require("droplet.widget")
+local history = require("droplet.history")
 
 function M:start(interval_ms)
 	state.running = true
@@ -50,6 +51,17 @@ function M:stop()
 				state.running = false
 			end)
 		end
+	end
+end
+
+function M:save_active_color()
+	if not history:add_to_history(state.active_color) then
+		naughty.notify({
+			text = "Could not save color",
+			timeout = 5,
+			position = "top_right",
+			screen = awful.screen.focused(),
+		})
 	end
 end
 
